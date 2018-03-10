@@ -1,0 +1,17 @@
+[ignore]
+
+[include]
+
+[libs]
+flow-typed
+
+[options]
+module.name_mapper.extension='scss' -> '<PROJECT_ROOT>/flow/CSSModule.js.flow'
+module.name_mapper.extension='css' -> '<PROJECT_ROOT>/flow/CSSModule.js.flow'
+
+module.name_mapper='^src\(.*\)' -> '<PROJECT_ROOT>/src/\1'
+
+
+
+
+[lints]
