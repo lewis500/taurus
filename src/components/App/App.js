@@ -21,6 +21,22 @@ class LaneComponent extends PureComponent {
   }
 }
 
+class CarComponent extends PureComponent {
+  render() {
+    let { x, y } = this.props;
+    return (
+      <rect
+        transform={`translate(${scale(x)},${scale(y)})`}
+        className={style.car}
+        width="4"
+        height="4"
+        x="-2"
+        y="-2"
+      />
+    );
+  }
+}
+
 class SignalComponent extends PureComponent {
   render() {
     let { x, y, orientation } = this.props;
@@ -48,7 +64,7 @@ export default connect(
       dispatch({ type: "TIMER_TOGGLE" });
     }
   })
-)(({ timerOn, time, timerToggle, lanes, signals }) => {
+)(({ timerOn, time, timerToggle, lanes, signals, cars }) => {
   return (
     <div className={style.main}>
       <div className={style.button} onClick={timerToggle}>
@@ -75,6 +91,7 @@ export default connect(
               key={id}
             />
           ))}
+          <g>{cars.map(d => <CarComponent x={d.x} y={d.y} key={d.id} />)}</g>
         </g>
       </svg>
     </div>

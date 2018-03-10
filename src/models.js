@@ -4,8 +4,13 @@
 import { GAP, N, CYCLE, LANE_LENGTH } from "src/constants";
 import uniqueId from "lodash/uniqueId";
 import { mod } from "src/utils";
+import { scaleLinear } from "d3-scale";
 
-export type Car = { id: string, pos: number };
+type Orientation = "ns" | "ew";
+type Direction = "n" | "s" | "e" | "w";
+type Coord = [number, number];
+
+export type Car = { id: string, pos: number, x: number, y: number };
 
 type Node = {
   car: Car,
@@ -14,31 +19,19 @@ type Node = {
 };
 
 const makeNode = (car): Node => ({ car, next: null, prev: null });
-type Orientation = "ns" | "ew";
-type Direction = "n" | "s" | "e" | "w";
-type Coord = [number, number];
 
-// type Lane = {
-//   first: Node | null,
-//   last: Node | null,
-//   direction: Direction,
-//   a: [number, number],
-//   b: [number, number],
-//   aS: Signal,
-//   bS: Signal
-// };
+const makeCar = (pos: number, x: number, y: number): Car => ({
+  id: uniqueId(),
+  pos,
+  x,
+  y
+});
 
-// const unshift = (lane: Lane, car) => {
-//   let node = makeNode(car);
-//   if (lane.first === null) {
-//     lane.first = lane.last = node;
-//   } else {
-//     let temp = lane.first;
-//     lane.first = node;
-//     node.next = temp;
-//     temp.prev = node;
-//   }
-// };
+const moveCar = (car: Car, pos: number, lane: Lane): void => {
+  car.x = lane.x0 + pos / LANE_LENGTH * (lane.x1 - lane.x0);
+  car.y = lane.y0 + pos / LANE_LENGTH * (lane.y1 - lane.y0);
+  car.pos = pos;
+};
 
 export class Lane {
   first: Node | null;
@@ -142,16 +135,23 @@ export class Graph {
     for (let row of range)
       for (let col of range)
         for (let or of ["ns", "ew"]) {
-          let a = [row, col];
           let direction =
             or === "ns" ? (even(col) ? "s" : "n") : even(row) ? "e" : "w";
           let b =
             or === "ns"
               ? [mod(even(col) ? row + 1 : row - 1, N), col]
               : [row, mod(even(row) ? col + 1 : col - 1, N)];
-          let lane = new Lane(a, b, direction);
-          this.matrix[lane.a[0]][lane.a[1]].addLaneOut(lane);
+          let lane = new Lane([row, col], b, direction);
+          this.matrix[row][col].addLaneOut(lane);
           this.lanes.push(lane);
+          for (var i = 9; i > 1; i--) {
+            let pos = i * 10;
+            let x = lane.x0 + pos / LANE_LENGTH * (lane.x1 - lane.x0);
+            let y = lane.y0 + pos / LANE_LENGTH * (lane.y1 - lane.y0);
+            let car = makeCar(pos, x, y);
+            lane.unshift(car);
+            this.cars.push(car);
+          }
         }
   }
 
@@ -165,9 +165,11 @@ export class Graph {
       while (temp) {
         let { car, next } = temp;
         if (next) {
-          if (next.car.pos - temp.car.pos > GAP) temp.car.pos++;
+          if (next.car.pos - car.pos > GAP) moveCar(car, car.pos + 1, lane);
         } else {
-          if (LANE_LENGTH - car.pos < GAP) {
+          // if (LANE_LENGTH - car.pos <= GAP) {
+          if (true) {
+            // console.log("asdf");
             let nextLane = this.matrix[lane.b[0]][lane.b[1]].lanesOut[
               +(Math.random() < 0.5)
             ];
@@ -183,7 +185,7 @@ export class Graph {
     for (let event of queue) {
       event[0].pop();
       event[1].unshift(event[2]);
-      event[2].pos = 0;
+      moveCar(event[2], 0, event[1]);
     }
   }
 }
