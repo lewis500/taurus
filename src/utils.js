@@ -29,3 +29,8 @@ export function createReducer<S, A: *>(
       : state;
   };
 }
+
+export const mod = (a: number, b: number): number => (a % b + b) % b;
+// .mod = function(n) {
+//   return ((this%n)+n)%n;
+// };

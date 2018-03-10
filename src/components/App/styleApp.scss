@@ -1,24 +1,42 @@
-.main{
-  padding: 30px;
+.main {
+  padding: 5px;
 }
+
 .text {
   font-size: 18px;
 }
 
 .button {
   padding: 10px;
-  background: blue;
-  height: 30px;
+  background: pink;
+  color:white;
+  // height: 30px;
   display: inline-block;
 }
-.time{
+.time {
   font-size: 18px;
   // display: inline-block;
 }
 .svg {
-  width: 350px;
-  height: 350px;
+  width: 620px;
+  height:620px;
 }
 .street {
   fill: #555;
+}
+.lane {
+  stroke: #555;
+  stroke-width: 8px;
+}
+.signal{
+  // height: 8px;
+  // width: 8px;
+  // x:-4px;
+  // y:-4px;
+  &.ns{
+    fill: red;
+  }
+  &.ew{
+    fill:lightgreen;
+  }
 }

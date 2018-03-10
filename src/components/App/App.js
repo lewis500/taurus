@@ -1,43 +1,81 @@
 //@flow
-import React from "react";
+import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import style from "./styleApp.scss";
 import type { State } from "src/types/State";
 import type { Dispatch } from "src/types/Dispatch";
-import { streets } from "src/constants";
+import { scaleLinear } from "d3-scale";
+import { N, LANE_LENGTH } from "src/constants";
+import classnames from "classnames";
 
-const streetsRendered = (
-  <g>
-    {streets.map(d => (
+const width = 600;
+const scale = scaleLinear()
+  .range([0, width])
+  .domain([0, N]);
+
+class LaneComponent extends PureComponent {
+  render() {
+    let { x0, x1, y0, y1 } = this.props;
+    let d = `M${scale(x0)},${scale(y0)} L${scale(x1)},${scale(y1)}`;
+    return <path className={style.lane} d={d} />;
+  }
+}
+
+class SignalComponent extends PureComponent {
+  render() {
+    let { x, y, orientation } = this.props;
+    return (
       <rect
-        key={d.id}
-        width={100}
-        height={10}
-        className={style.street}
-        transform={`translate(${110 * d.col},${110 * d.row +
-          d.orientation * 10}) rotate(${90 * d.orientation})`}
+        width="8px"
+        height="8px"
+        transform={`translate(${scale(x) - 4},${scale(y) - 4})`}
+        className={classnames(style.signal, style[orientation])}
       />
-    ))}
-  </g>
-);
+    );
+  }
+}
 
 export default connect(
-  ({ timerOn, time }) => ({ timerOn, time }),
+  ({ timerOn, time, cars, lanes, signals }) => ({
+    timerOn,
+    time,
+    cars,
+    lanes,
+    signals
+  }),
   (dispatch: Dispatch) => ({
     timerToggle() {
       dispatch({ type: "TIMER_TOGGLE" });
     }
   })
-)(({ timerOn, time, timerToggle }) => {
+)(({ timerOn, time, timerToggle, lanes, signals }) => {
   return (
     <div className={style.main}>
       <div className={style.button} onClick={timerToggle}>
         {timerOn ? "ON" : "OFF"}
       </div>
       <div className={style.time}>{time}</div>
-      <br />
       <svg className={style.svg}>
-        <g transform="translate(10,10)">{streetsRendered}</g>
+        <g transform="translate(10,10)">
+          {lanes.map(lane => (
+            <LaneComponent
+              x0={lane.x0}
+              x1={lane.x1}
+              y0={lane.y0}
+              y1={lane.y1}
+              key={lane.id}
+              direction={lane.direction}
+            />
+          ))}
+          {signals.map(({ col, row, orientation, id }) => (
+            <SignalComponent
+              x={col}
+              y={row}
+              orientation={orientation}
+              key={id}
+            />
+          ))}
+        </g>
       </svg>
     </div>
   );
