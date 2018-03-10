@@ -1,6 +1,8 @@
 //@flow
-export const INCREMENT = 'INCREMENT';
-export const DECREMENT = 'DECREMENT';
+export const TIMER_TOGGLE = 'TIMER_TOGGLE';
+// export const INCREMENT = 'INCREMENT';
+// export const DECREMENT = 'DECREMENT';
+
 // module.exports =  
 // module.exports:
 // const hello:{[string]:string} = ['INCREMENT','DECREMENT'].reduce((a,b)=>({...a,[b]:b}),{});

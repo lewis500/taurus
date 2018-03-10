@@ -3,17 +3,21 @@ import { combineReducers } from "redux";
 import * as AC from "src/actionNames";
 import { createReducer as CR } from "src/utils";
 
-const counter = CR(0, {
-  [AC.INCREMENT](state) {
-    return state + 1;
-  },
-  [AC.DECREMENT](state) {
-    return state - 1;
+const timerOn = CR(false, {
+  TIMER_TOGGLE(state) {
+    return !state;
+  }
+});
+
+const time = CR(0, {
+  TICK(state, { payload }) {
+    return state + payload;
   }
 });
 
 export const reducers = {
-  counter
+  timerOn,
+  time
 };
 
 export default combineReducers(reducers);

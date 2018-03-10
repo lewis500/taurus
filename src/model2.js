@@ -51,7 +51,7 @@ class Lane {
     }
   }
 
-  pop(): Node {
+  pop(): ?Node {
     if (this.last === null) {
       return null;
     }

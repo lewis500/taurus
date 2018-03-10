@@ -1,12 +1,19 @@
 //@flow
-type IncrementAction = {
-  type: 'INCREMENT'
-  //   payload: number
+// type IncrementAction = {
+//   type: 'INCREMENT'
+//   //   payload: number
+// };
+
+// type DecrementAction = {
+//   type: 'DECREMENT'
+//   //   payload: number
+// };
+type TimerToggleAction = {
+  type: "TIMER_TOGGLE"
+};
+type Tick = {
+  type: "TICK",
+  payload: number
 };
 
-type DecrementAction = {
-  type: 'DECREMENT'
-  //   payload: number
-};
-
-export type Action = IncrementAction | DecrementAction;
+export type Action = TimerToggleAction | Tick;
