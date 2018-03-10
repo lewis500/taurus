@@ -48,12 +48,12 @@ export class Lane {
   y0: number;
   x1: number;
   y1: number;
-  aS: Signal;
-  bS: Signal;
+  a: Coord;
+  b: Coord;
   id: string;
-  constructor(aS: Signal, bS: Signal, direction: Direction) {
-    let { col: x0, row: y0 } = aS;
-    let { col: x1, row: y1 } = bS;
+  constructor(a: Coord, b: Coord, direction: Direction) {
+    let [x0, y0] = a;
+    let [x1, y1] = b;
     if (x1 === 0 && x0 === N - 1) x1 = N;
     else if (y1 === N - 1 && y0 === 0) y0 = N;
     else if (x1 === N - 1 && x0 === 0) x0 = N;
@@ -62,8 +62,8 @@ export class Lane {
       first: null,
       last: null,
       direction,
-      aS,
-      bS,
+      a,
+      b,
       x0,
       y0,
       x1,
@@ -101,7 +101,6 @@ export class Signal {
   t: number;
   id: string;
   lanesOut: Array<Lane>;
-  lanesIn: Array<Lane>;
   constructor(row: number, col: number) {
     Object.assign(this, {
       row,
@@ -109,12 +108,8 @@ export class Signal {
       orientation: "ns",
       t: 0,
       id: uniqueId(),
-      lanesIn: [],
       lanesOut: []
     });
-  }
-  addLaneIn(lane: Lane) {
-    this.lanesIn.push(lane);
   }
   addLaneOut(lane: Lane) {
     this.lanesOut.push(lane);
@@ -154,13 +149,8 @@ export class Graph {
             or === "ns"
               ? [mod(even(col) ? row + 1 : row - 1, N), col]
               : [row, mod(even(row) ? col + 1 : col - 1, N)];
-          let lane = new Lane(
-            this.matrix[a[0]][a[1]],
-            this.matrix[b[0]][b[1]],
-            direction
-          );
-          lane.aS.addLaneOut(lane);
-          lane.bS.addLaneIn(lane);
+          let lane = new Lane(a, b, direction);
+          this.matrix[lane.a[0]][lane.a[1]].addLaneOut(lane);
           this.lanes.push(lane);
         }
   }
@@ -170,32 +160,30 @@ export class Graph {
     for (let signal of this.signals) {
       signal.tick(dt);
     }
-    // for (let lane of this.lanes) {
-    //   let temp = lane.first;
-    //   while (temp) {
-    //     let { car, next } = temp;
-    //     if (next) {
-    //       if (next.car.pos - temp.car.pos > GAP) temp.car.pos++;
-    //     } else {
-    //       if (LANE_LENGTH - car.pos < GAP) {
-    //         let turning = Math.random() < 0.5;
-    //         let signal = lane.bS;
-    //         let nextLane = signal.lanesOut.find(
-    //           l => (l.direction === lane.direction) !== turning
-    //         );
-    //         if (!nextLane) throw Error("error in finding lane");
-    //         if (!nextLane.first || nextLane.first.car.pos > GAP) {
-    //           queue.push([lane, nextLane, car]);
-    //         }
-    //       }
-    //     }
-    //     temp = next;
-    //   }
-    // }
-    // for (let event of queue) {
-    //   event[0].pop();
-    //   event[1].unshift(event[2]);
-    //   event[2].pos = 0;
-    // }
+    for (let lane of this.lanes) {
+      let temp = lane.first;
+      while (temp) {
+        let { car, next } = temp;
+        if (next) {
+          if (next.car.pos - temp.car.pos > GAP) temp.car.pos++;
+        } else {
+          if (LANE_LENGTH - car.pos < GAP) {
+            let nextLane = this.matrix[lane.b[0]][lane.b[1]].lanesOut[
+              +(Math.random() < 0.5)
+            ];
+            if (!nextLane) throw Error("error in finding lane");
+            if (!nextLane.first || nextLane.first.car.pos > GAP) {
+              queue.push([lane, nextLane, car]);
+            }
+          }
+        }
+        temp = next;
+      }
+    }
+    for (let event of queue) {
+      event[0].pop();
+      event[1].unshift(event[2]);
+      event[2].pos = 0;
+    }
   }
 }
