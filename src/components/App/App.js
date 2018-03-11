@@ -8,8 +8,8 @@ import { scaleLinear } from "d3-scale";
 import { N, LANE_LENGTH, SJ } from "src/constants";
 import classnames from "classnames";
 
-const width = 600;
-const lineWidth = 10;
+const width = 450;
+const lineWidth = 5;
 const scale2 = scaleLinear()
   .range([0, width])
   .domain([0, N]);
@@ -47,10 +47,10 @@ class CarComponent extends PureComponent {
       <rect
         transform={`translate(${x},${y})`}
         className={style.car}
-        width="3"
-        height="3"
-        x="-1.5"
-        y="-1.5"
+        width="2"
+        height="2"
+        x="-1"
+        y="-1"
       />
     );
   }
