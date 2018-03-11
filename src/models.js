@@ -1,6 +1,6 @@
 //@flow
 
-import { N, CYCLE, LANE_LENGTH, W, SJ, VF } from "src/constants";
+import { N, CYCLE, LANE_LENGTH, W, SJ, VF, TURN } from "src/constants";
 import uniqueId from "lodash/uniqueId";
 import { mod } from "src/utils";
 import mc from "material-colors";
@@ -15,7 +15,7 @@ const vs = (() => {
     b = W / SJ;
   return (s: number) => {
     if (s < SJ) return 0;
-    else if (s > a) return VF;
+    else if (s >= a) return VF;
     else return b * (s - SJ);
   };
 })();
@@ -29,7 +29,7 @@ const getColor = (() => {
     "purple",
     "lightBlue",
     "teal"
-  ].map(d => mc[d]['200']);
+  ].map(d => mc[d]["200"]);
   const l = colors.length - 1;
   let i = 0;
   return () => colors[i++ % l];
@@ -42,7 +42,8 @@ export type Car = {
   y: number,
   lane: string,
   orientation: Orientation,
-  color: string
+  color: string,
+  nextTimeTurning: boolean
 };
 
 type Node = {
@@ -60,7 +61,8 @@ const makeCar = (pos: number, x: number, y: number, lane: Lane): Car => ({
   x,
   y,
   lane: lane.id,
-  orientation: lane.orientation
+  orientation: lane.orientation,
+  nextTimeTurning: Math.random() <= TURN
 });
 
 const moveCar = (car: Car, pos: number, lane: Lane): void => {
@@ -230,16 +232,42 @@ export class Graph {
             Math.min(car.pos + vs(next.car.pos - car.pos), LANE_LENGTH),
             lane
           );
-        } else if (car.pos === LANE_LENGTH && signalOpen) {
-          let nextLane = signal.lanesOut[+(Math.random() <= 0.5)];
-          if (!nextLane) throw Error("error in finding lane");
-          if (!nextLane.first || nextLane.first.car.pos >= SJ) {
-            lane.pop();
-            moveCar(car, 0, nextLane);
-            nextLane.unshift(car);
-          }
-        } else moveCar(car, Math.min(car.pos + VF, LANE_LENGTH), lane);
+        }
         temp = next;
+        if (!next) {
+          let distanceRemaining = LANE_LENGTH - car.pos;
+          if (distanceRemaining >= VF) moveCar(car, car.pos + VF, lane);
+          else {
+            let nextLane = signal.lanesOut.find(
+              d => (d.orientation === lane.orientation) !== car.nextTimeTurning
+            );
+            if (!nextLane) throw Error("error in finding lane");
+            if (!signalOpen) {
+              moveCar(car, LANE_LENGTH, lane);
+            } else if (!nextLane.first) {
+              lane.pop();
+              moveCar(car, VF - distanceRemaining, nextLane);
+              car.nextTimeTurning = Math.random() <= TURN;
+              nextLane.unshift(car);
+            } else {
+              let dx = vs(nextLane.first.car.pos + distanceRemaining);
+              if (dx > distanceRemaining) {
+                lane.pop();
+                moveCar(car, dx - distanceRemaining, nextLane);
+                car.nextTimeTurning = Math.random() <= TURN;
+                nextLane.unshift(car);
+              } else {
+                moveCar(car, LANE_LENGTH, lane);
+              }
+            }
+          }
+        }
+        // if (car.pos === LANE_LENGTH && signalOpen) {
+        //   // if (next) throw Error("car at end but still a next one");
+        // }
+        // if (!next && car.pos < LANE_LENGTH)
+        // moveCar(car, Math.min(car.pos + VF, LANE_LENGTH), lane);
+        // temp = next;
       }
     }
   }
