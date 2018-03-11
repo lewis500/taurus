@@ -67,8 +67,10 @@ export default connect(
 )(({ timerOn, time, timerToggle, signals, cars }) => {
   return (
     <div className={style.main}>
-      <div className={style.button} onClick={timerToggle}>
-        {timerOn ? "ON" : "OFF"}
+      <div>
+        <div className={style.button} onClick={timerToggle}>
+          {timerOn ? "ON" : "OFF"}
+        </div>
       </div>
       {/* <div className={style.time}>{time}</div> */}
       <svg className={style.svg}>

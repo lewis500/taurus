@@ -32,9 +32,8 @@ const root: Reducer<State, Action> = (
   action: Action
 ): State => {
   if (action.type === "TICK")
-    for (var i = 0; i < 4; i++) model.run(action.payload);
+    for (var i = 0; i < 2; i++) model.run(action.payload);
 
-  // console.log(model.signals);
   return {
     time: time(state.time, action),
     timerOn: timerOn(state.timerOn, action),

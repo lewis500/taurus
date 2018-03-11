@@ -1,13 +1,19 @@
-//https://mgechev.github.io/javascript-algorithms/data-structures_linked-list.js.html
 //@flow
 
-import { GAP, N, CYCLE, LANE_LENGTH } from "src/constants";
+import { N, CYCLE, LANE_LENGTH, W, SJ, VF } from "src/constants";
 import uniqueId from "lodash/uniqueId";
 import { mod } from "src/utils";
 
 type Orientation = "ns" | "ew";
 type Direction = "n" | "s" | "e" | "w";
 type Coord = [number, number];
+
+const vs = (s: number) => {
+  if (s < SJ) return 0;
+  if (s > VF / W + 1) return VF;
+  // console.log('asdf')
+  return W / SJ * (s - SJ);
+};
 
 export type Car = {
   id: string,
@@ -129,7 +135,8 @@ export class Signal {
     this.lanesOut.push(lane);
   }
   tick(dt: number) {
-    this.t = (this.t + dt) % CYCLE;
+    // this.t = (this.t + dt) % CYCLE;
+    this.t = (this.t + 1) % CYCLE;
     if (this.t > CYCLE / 2) this.orientation = "ew";
     else this.orientation = "ns";
   }
@@ -165,8 +172,12 @@ export class Graph {
           let lane = new Lane([row, col], b, direction);
           this.matrix[row][col].addLaneOut(lane);
           this.lanes.push(lane);
-          for (var i = 0; i < 5; i++) {
-            let pos = i * 10;
+          for (
+            var i = 0, numCars = 10, inc = LANE_LENGTH / numCars;
+            i < numCars;
+            i++
+          ) {
+            let pos = inc * i;
             let x = lane.x0 + pos / LANE_LENGTH * (lane.x1 - lane.x0);
             let y = lane.y0 + pos / LANE_LENGTH * (lane.y1 - lane.y0);
             let car = makeCar(pos, x, y, lane);
@@ -188,17 +199,21 @@ export class Graph {
       while (temp) {
         let { car, next } = temp;
         if (next) {
-          if (next.car.pos - car.pos >= GAP) moveCar(car, car.pos + 1, lane);
+          moveCar(
+            car,
+            Math.min(car.pos + vs(next.car.pos - car.pos), LANE_LENGTH),
+            lane
+          );
         } else if (car.pos === LANE_LENGTH && signalOpen) {
-          let nextLane = signal.lanesOut[+(Math.random() < 0.5)];
+          let nextLane = signal.lanesOut[+(Math.random() <= 0.5)];
           if (!nextLane) throw Error("error in finding lane");
-          if (!nextLane.first || nextLane.first.car.pos > GAP) {
+          if (!nextLane.first || nextLane.first.car.pos > SJ) {
             lane.pop();
-            moveCar(car, 1, nextLane);
+            moveCar(car, 0, nextLane);
             nextLane.unshift(car);
             // queue.push([lane, nextLane, car]);
           }
-        } else moveCar(car, Math.min(car.pos + 1, LANE_LENGTH), lane);
+        } else moveCar(car, Math.min(car.pos + VF, LANE_LENGTH), lane);
         temp = next;
       }
     }

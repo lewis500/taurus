@@ -1,3 +1,6 @@
+body{
+  background: #555;
+}
 .main {
   padding: 5px;
 }
@@ -8,8 +11,10 @@
 
 .button {
   padding: 5px;
-  background: pink;
-  color:white;
+  background: white;
+  color:black;
+  cursor: pointer;
+  display: inline-block;
 }
 .time {
   font-size: 18px;
@@ -22,19 +27,23 @@
   fill: #555;
 }
 .lane {
-  stroke: #555;
-  stroke-width: 8px;
+  stroke: #444;
+  stroke-width: 10px;
 }
 .signal{
+  // stroke: black;
   &.ns{
-    fill: lightcoral;
+    fill: rgb(236, 144, 238);
   }
   &.ew{
-    fill:lightblue;
+    fill:rgb(153, 211, 231);
   }
 }
 .car{
   fill: orange;
   // height:4px;
   // width:4px;
+}
+svg{
+  display: inline-block;
 }
