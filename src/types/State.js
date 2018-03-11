@@ -5,5 +5,6 @@ export type State = {
   time: number,
   cars: Array<Car>,
   signals: Array<Signal>,
-  timerOn: boolean
+  timerOn: boolean,
+  k: number
 };

@@ -53,16 +53,22 @@ type Node = {
 
 const makeNode = (car): Node => ({ car, next: null, prev: null });
 
-const makeCar = (pos: number, x: number, y: number, lane: Lane): Car => ({
-  id: uniqueId(),
-  color: getColor(),
-  pos,
-  x,
-  y,
-  lane: lane.id,
-  orientation: lane.orientation,
-  nextTimeTurning: Math.random() <= TURN
-});
+// class Car
+
+const makeCar = (pos: number, lane: Lane): Car => {
+  let x = lane.x0 + pos / LANE_LENGTH * (lane.x1 - lane.x0);
+  let y = lane.y0 + pos / LANE_LENGTH * (lane.y1 - lane.y0);
+  return {
+    id: uniqueId(),
+    color: getColor(),
+    pos,
+    x,
+    y,
+    lane: lane.id,
+    orientation: lane.orientation,
+    nextTimeTurning: Math.random() <= TURN
+  };
+};
 
 const moveCar = (car: Car, pos: number, lane: Lane): void => {
   car.x = lane.x0 + pos / LANE_LENGTH * (lane.x1 - lane.x0);
@@ -175,12 +181,37 @@ const range = Array(N)
 
 const even = (d: number) => d % 2 === 0;
 
+// class History {
+//   constructor(){
+//     assign(this,{
+
+//     });
+//   }
+// }
+// type Record = {q: }
+
 export class Graph {
   matrix: Array<Array<Signal>>;
   signals: Array<Signal>;
   lanes: Array<Lane>;
   cars: Array<Car>;
-  constructor() {
+
+  makeCars(k: number) {
+    let carsPerLane = k; //distance normalized to lane length
+    this.cars = [];
+    let space = LANE_LENGTH / carsPerLane;
+    for (let lane of this.lanes) {
+      lane.first = lane.last = null;
+      for (var i = 0; i < carsPerLane; i++) {
+        let pos = i * space;
+        let newCar = makeCar(pos, lane);
+        lane.push(newCar);
+        this.cars.push(newCar);
+      }
+    }
+  }
+
+  constructor(k: number) {
     //create signals matrix
     this.matrix = range.map(row => range.map(col => new Signal(row, col)));
     this.signals = [].concat(...this.matrix);
@@ -198,20 +229,9 @@ export class Graph {
               : [row, mod(even(row) ? col + 1 : col - 1, N)];
           let lane = new Lane([row, col], b, direction);
           this.matrix[row][col].addLaneOut(lane);
-          this.lanes.push(lane);
-          for (
-            var i = 1, numCars = 10, inc = LANE_LENGTH / numCars;
-            i < numCars;
-            i++
-          ) {
-            let pos = inc * i;
-            let x = lane.x0 + pos / LANE_LENGTH * (lane.x1 - lane.x0);
-            let y = lane.y0 + pos / LANE_LENGTH * (lane.y1 - lane.y0);
-            let car = makeCar(pos, x, y, lane);
-            lane.push(car);
-            this.cars.push(car);
-          }
+          this.lanes.push(lane)
         }
+    this.makeCars(k);
   }
 
   run(dt: number) {
@@ -261,12 +281,6 @@ export class Graph {
             }
           }
         }
-        // if (car.pos === LANE_LENGTH && signalOpen) {
-        //   // if (next) throw Error("car at end but still a next one");
-        // }
-        // if (!next && car.pos < LANE_LENGTH)
-        // moveCar(car, Math.min(car.pos + VF, LANE_LENGTH), lane);
-        // temp = next;
       }
     }
   }

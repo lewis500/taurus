@@ -1,6 +1,7 @@
 //@flow
 type TimerToggleAction = {
-  type: "TIMER_TOGGLE"
+  type: "TIMER_TOGGLE",
+  // payload: 
 };
 
 type Tick = {
@@ -8,4 +9,9 @@ type Tick = {
   payload: number
 };
 
-export type Action = TimerToggleAction | Tick;
+type SetKAction = {
+  type: "SET_K",
+  payload: number
+};
+
+export type Action = TimerToggleAction | Tick | SetKAction;

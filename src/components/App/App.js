@@ -5,7 +5,7 @@ import style from "./styleApp.scss";
 import type { State } from "src/types/State";
 import type { Dispatch } from "src/types/Dispatch";
 import { scaleLinear } from "d3-scale";
-import { N, LANE_LENGTH } from "src/constants";
+import { N, LANE_LENGTH, SJ } from "src/constants";
 import classnames from "classnames";
 
 const width = 600;
@@ -71,24 +71,37 @@ class CarComponent extends PureComponent {
 // }
 
 export default connect(
-  ({ timerOn, time, cars, signals }) => ({
+  ({ timerOn, time, cars, k }) => ({
     timerOn,
     time,
     cars,
-    signals
+    k
+    // signals,
   }),
   (dispatch: Dispatch) => ({
     timerToggle() {
       dispatch({ type: "TIMER_TOGGLE" });
+    },
+    setK(e) {
+      let k = e.target.value;
+      dispatch({ type: "SET_K", payload: k });
     }
   })
-)(({ timerOn, timerToggle, cars }) => {
+)(({ timerOn, timerToggle, cars, k, setK }) => {
   return (
     <div className={style.main}>
-      <div>
+      <div className={style.inputs}>
         <div className={style.button} onClick={timerToggle}>
           {timerOn ? "ON" : "OFF"}
         </div>
+        <input
+          type="range"
+          min="0"
+          max={LANE_LENGTH / SJ}
+          step="1"
+          value={k}
+          onChange={setK}
+        />
       </div>
       {/* <div className={style.time}>{time}</div> */}
       <svg className={style.svg}>
