@@ -6,5 +6,6 @@ export type State = {
   cars: Array<Car>,
   signals: Array<Signal>,
   timerOn: boolean,
-  k: number
+  k: number,
+  mfdState: [number,number]
 };

@@ -71,11 +71,12 @@ class CarComponent extends PureComponent {
 // }
 
 export default connect(
-  ({ timerOn, time, cars, k }) => ({
+  ({ timerOn, time, cars, k, mfdState }) => ({
     timerOn,
     time,
     cars,
-    k
+    k,
+    mfdState
     // signals,
   }),
   (dispatch: Dispatch) => ({
@@ -87,7 +88,7 @@ export default connect(
       dispatch({ type: "SET_K", payload: k });
     }
   })
-)(({ timerOn, timerToggle, cars, k, setK }) => {
+)(({ timerOn, timerToggle, cars, k, setK, mfdState }) => {
   return (
     <div className={style.main}>
       <div className={style.inputs}>
@@ -97,11 +98,13 @@ export default connect(
         <input
           type="range"
           min="0"
-          max={LANE_LENGTH / SJ}
+          max={LANE_LENGTH / SJ - 1}
           step="1"
           value={k}
           onChange={setK}
         />
+        <span>k: {mfdState[0]}</span>
+        <span>q: {mfdState[1].toFixed(2)}</span>
       </div>
       {/* <div className={style.time}>{time}</div> */}
       <svg className={style.svg}>

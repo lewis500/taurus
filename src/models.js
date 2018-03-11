@@ -1,6 +1,6 @@
 //@flow
 
-import { N, CYCLE, LANE_LENGTH, W, SJ, VF, TURN } from "src/constants";
+import { N, CYCLE, LANE_LENGTH, W, SJ, VF, TURN, HIST } from "src/constants";
 import uniqueId from "lodash/uniqueId";
 import { mod } from "src/utils";
 import mc from "material-colors";
@@ -181,22 +181,24 @@ const range = Array(N)
 
 const even = (d: number) => d % 2 === 0;
 
-// class History {
-//   constructor(){
-//     assign(this,{
-
-//     });
-//   }
-// }
-// type Record = {q: }
-
 export class Graph {
   matrix: Array<Array<Signal>>;
   signals: Array<Signal>;
   lanes: Array<Lane>;
   cars: Array<Car>;
+  history: Array<[number, number]>;
+  k: number;
+
+  getMFDState(): [number, number] {
+    let l = this.history.length;
+    let k = 0,
+      q = 0;
+    for (let d of this.history) (k += d[0]), (q += d[1]);
+    return [k / l, q / l];
+  }
 
   makeCars(k: number) {
+    this.k = k;
     let carsPerLane = k; //distance normalized to lane length
     this.cars = [];
     let space = LANE_LENGTH / carsPerLane;
@@ -217,6 +219,7 @@ export class Graph {
     this.signals = [].concat(...this.matrix);
     this.cars = [];
     this.lanes = [];
+
     //add lanes
     for (let row of range)
       for (let col of range)
@@ -229,59 +232,61 @@ export class Graph {
               : [row, mod(even(row) ? col + 1 : col - 1, N)];
           let lane = new Lane([row, col], b, direction);
           this.matrix[row][col].addLaneOut(lane);
-          this.lanes.push(lane)
+          this.lanes.push(lane);
         }
+    this.history = [[k, 0]];
     this.makeCars(k);
   }
 
   run(dt: number) {
     let queue: Array<[Lane, Lane, Car]> = [];
-    for (let signal of this.signals) {
-      signal.tick();
-    }
+    for (let signal of this.signals) signal.tick();
+    let q = 0;
     for (let lane of this.lanes) {
       let temp = lane.first;
       let signal = this.matrix[lane.b[0]][lane.b[1]];
       let signalOpen = signal.orientation.includes(lane.direction);
       while (temp) {
         let { car, next } = temp;
+        let dx = 0;
         if (next) {
-          moveCar(
-            car,
-            Math.min(car.pos + vs(next.car.pos - car.pos), LANE_LENGTH),
-            lane
-          );
+          dx = vs(next.car.pos - car.pos);
+          moveCar(car, car.pos + dx, lane);
         }
-        temp = next;
         if (!next) {
           let distanceRemaining = LANE_LENGTH - car.pos;
-          if (distanceRemaining >= VF) moveCar(car, car.pos + VF, lane);
-          else {
+          if (!signalOpen) {
+            dx = vs(distanceRemaining);
+            moveCar(car, car.pos + dx, lane);
+          } else {
             let nextLane = signal.lanesOut.find(
               d => (d.orientation === lane.orientation) !== car.nextTimeTurning
             );
             if (!nextLane) throw Error("error in finding lane");
-            if (!signalOpen) {
-              moveCar(car, LANE_LENGTH, lane);
-            } else if (!nextLane.first) {
+            if (!nextLane.first) {
               lane.pop();
+              dx = VF;
               moveCar(car, VF - distanceRemaining, nextLane);
               car.nextTimeTurning = Math.random() <= TURN;
               nextLane.unshift(car);
             } else {
-              let dx = vs(nextLane.first.car.pos + distanceRemaining);
+              dx = vs(nextLane.first.car.pos + distanceRemaining);
               if (dx > distanceRemaining) {
                 lane.pop();
                 moveCar(car, dx - distanceRemaining, nextLane);
                 car.nextTimeTurning = Math.random() <= TURN;
                 nextLane.unshift(car);
               } else {
-                moveCar(car, LANE_LENGTH, lane);
+                moveCar(car, car.pos + dx, lane);
               }
             }
           }
         }
+        q += dx;
+        temp = next;
       }
     }
+    this.history.push([this.k, q / N / LANE_LENGTH]);
+    if (this.history.length > HIST) this.history.shift();
   }
 }

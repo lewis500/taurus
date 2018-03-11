@@ -27,7 +27,8 @@ const defaultState: State = {
   timerOn: false,
   signals: model.signals,
   cars: model.cars,
-  k: 10
+  k: 10,
+  mfdState: [0, 0]
 };
 
 const root: Reducer<State, Action> = (
@@ -43,7 +44,8 @@ const root: Reducer<State, Action> = (
     timerOn: timerOn(state.timerOn, action),
     signals: model.signals,
     cars: model.cars,
-    k: k(state.k, action)
+    k: k(state.k, action),
+    mfdState: model.getMFDState()
   };
 };
 export default root;
