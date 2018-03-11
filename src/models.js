@@ -3,24 +3,46 @@
 import { N, CYCLE, LANE_LENGTH, W, SJ, VF } from "src/constants";
 import uniqueId from "lodash/uniqueId";
 import { mod } from "src/utils";
+import mc from "material-colors";
+// console.log(mc)
 
 type Orientation = "ns" | "ew";
 type Direction = "n" | "s" | "e" | "w";
 type Coord = [number, number];
 
-const vs = (s: number) => {
-  if (s < SJ) return 0;
-  if (s > VF / W + 1) return VF;
-  // console.log('asdf')
-  return W / SJ * (s - SJ);
-};
+const vs = (() => {
+  const a = VF / W + 1,
+    b = W / SJ;
+  return (s: number) => {
+    if (s < SJ) return 0;
+    else if (s > a) return VF;
+    else return b * (s - SJ);
+  };
+})();
+const getColor = (() => {
+  const colors = [
+    "red",
+    "blue",
+    "green",
+    "orange",
+    "pink",
+    "purple",
+    "lightBlue",
+    "teal"
+  ].map(d => mc[d]['200']);
+  const l = colors.length - 1;
+  let i = 0;
+  return () => colors[i++ % l];
+})();
 
 export type Car = {
   id: string,
   pos: number,
   x: number,
   y: number,
-  lane: string
+  lane: string,
+  orientation: Orientation,
+  color: string
 };
 
 type Node = {
@@ -33,10 +55,12 @@ const makeNode = (car): Node => ({ car, next: null, prev: null });
 
 const makeCar = (pos: number, x: number, y: number, lane: Lane): Car => ({
   id: uniqueId(),
+  color: getColor(),
   pos,
   x,
   y,
-  lane: lane.id
+  lane: lane.id,
+  orientation: lane.orientation
 });
 
 const moveCar = (car: Car, pos: number, lane: Lane): void => {
@@ -44,12 +68,14 @@ const moveCar = (car: Car, pos: number, lane: Lane): void => {
   car.y = lane.y0 + pos / LANE_LENGTH * (lane.y1 - lane.y0);
   car.pos = pos;
   car.lane = lane.id;
+  car.orientation = lane.orientation;
 };
 
 export class Lane {
   first: Node | null;
   last: Node | null;
   direction: Direction;
+  orientation: Orientation;
   x0: number;
   y0: number;
   x1: number;
@@ -58,12 +84,12 @@ export class Lane {
   b: Coord;
   id: string;
   constructor(a: Coord, b: Coord, direction: Direction) {
-    let [x0, y0] = a;
-    let [x1, y1] = b;
+    let [y0, x0] = a;
+    let [y1, x1] = b;
     if (x1 === 0 && x0 === N - 1) x1 = N;
+    else if (y1 === 0 && y0 === N - 1) y1 = N;
     else if (y1 === N - 1 && y0 === 0) y0 = N;
     else if (x1 === N - 1 && x0 === 0) x0 = N;
-    else if (y1 === 0 && y0 === N - 1) y1 = N;
     Object.assign(this, {
       first: null,
       last: null,
@@ -74,7 +100,8 @@ export class Lane {
       y0,
       x1,
       y1,
-      id: uniqueId()
+      id: uniqueId(),
+      orientation: "ns".includes(direction) ? "ns" : "ew"
     });
   }
 
@@ -134,8 +161,7 @@ export class Signal {
   addLaneOut(lane: Lane) {
     this.lanesOut.push(lane);
   }
-  tick(dt: number) {
-    // this.t = (this.t + dt) % CYCLE;
+  tick() {
     this.t = (this.t + 1) % CYCLE;
     if (this.t > CYCLE / 2) this.orientation = "ew";
     else this.orientation = "ns";
@@ -173,7 +199,7 @@ export class Graph {
           this.matrix[row][col].addLaneOut(lane);
           this.lanes.push(lane);
           for (
-            var i = 0, numCars = 10, inc = LANE_LENGTH / numCars;
+            var i = 1, numCars = 10, inc = LANE_LENGTH / numCars;
             i < numCars;
             i++
           ) {
@@ -190,7 +216,7 @@ export class Graph {
   run(dt: number) {
     let queue: Array<[Lane, Lane, Car]> = [];
     for (let signal of this.signals) {
-      signal.tick(dt);
+      signal.tick();
     }
     for (let lane of this.lanes) {
       let temp = lane.first;
@@ -207,20 +233,14 @@ export class Graph {
         } else if (car.pos === LANE_LENGTH && signalOpen) {
           let nextLane = signal.lanesOut[+(Math.random() <= 0.5)];
           if (!nextLane) throw Error("error in finding lane");
-          if (!nextLane.first || nextLane.first.car.pos > SJ) {
+          if (!nextLane.first || nextLane.first.car.pos >= SJ) {
             lane.pop();
             moveCar(car, 0, nextLane);
             nextLane.unshift(car);
-            // queue.push([lane, nextLane, car]);
           }
         } else moveCar(car, Math.min(car.pos + VF, LANE_LENGTH), lane);
         temp = next;
       }
     }
-    // for (let event of queue) {
-    //   event[0].pop();
-    //   event[1].unshift(event[2]);
-    //   moveCar(event[2], 0, event[1]);
-    // }
   }
 }

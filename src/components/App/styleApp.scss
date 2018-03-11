@@ -1,5 +1,6 @@
-body{
-  background: #555;
+@import "~material-colors/dist/colors";
+body {
+  background: $md-grey-500;
 }
 .main {
   padding: 5px;
@@ -12,7 +13,7 @@ body{
 .button {
   padding: 5px;
   background: white;
-  color:black;
+  color: black;
   cursor: pointer;
   display: inline-block;
 }
@@ -21,29 +22,26 @@ body{
 }
 .svg {
   width: 620px;
-  height:620px;
-}
-.street {
-  fill: #555;
+  height: 620px;
 }
 .lane {
   stroke: #444;
   stroke-width: 10px;
 }
-.signal{
+.signal {
   // stroke: black;
-  &.ns{
-    fill: rgb(236, 144, 238);
+  &.ns {
+    fill: $md-pink-500;
   }
-  &.ew{
-    fill:rgb(153, 211, 231);
+  &.ew {
+    fill: rgb(153, 211, 231);
   }
 }
-.car{
-  fill: orange;
+.car {
+  fill: $md-pink-200;
   // height:4px;
   // width:4px;
 }
-svg{
+svg {
   display: inline-block;
 }

@@ -31,8 +31,8 @@ const root: Reducer<State, Action> = (
   state = defaultState,
   action: Action
 ): State => {
-  if (action.type === "TICK")
-    for (var i = 0; i < 2; i++) model.run(action.payload);
+  if (action.type === "TICK") 
+  for (var i = 0; i < 2; i++) model.run(action.payload);
 
   return {
     time: time(state.time, action),
