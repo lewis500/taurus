@@ -13,7 +13,7 @@ module.exports = {
   },
   output: {
     path: resolve(__dirname, "public"),
-    publicPath: "/",
+    publicPath: "/public",
     filename: "[name].js"
   },
   mode: "production",
@@ -25,7 +25,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: resolve(__dirname, "src", "index.html")
+      template: resolve(__dirname, "src", "index.html"),
+      filename: resolve(__dirname,"index.html")
     }),
     definePlugin
   ],
