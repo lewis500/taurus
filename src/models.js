@@ -4,8 +4,6 @@ import { N, CYCLE, LANE_LENGTH, W, SJ, VF, TURN } from "src/constants";
 import uniqueId from "lodash/uniqueId";
 import { mod } from "src/utils";
 import mc from "material-colors";
-// console.log(mc)
-
 type Orientation = "ns" | "ew";
 type Direction = "n" | "s" | "e" | "w";
 type Coord = [number, number];
@@ -19,6 +17,7 @@ const vs = (() => {
     else return b * (s - SJ);
   };
 })();
+
 const getColor = (() => {
   const colors = [
     "red",

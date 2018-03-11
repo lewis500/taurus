@@ -56,19 +56,19 @@ class CarComponent extends PureComponent {
   }
 }
 
-class SignalComponent extends PureComponent {
-  render() {
-    let { x, y, orientation } = this.props;
-    return (
-      <rect
-        width="8px"
-        height="8px"
-        transform={`translate(${scale(x) - 4},${scale(y) - 4})`}
-        className={classnames(style.signal, style[orientation])}
-      />
-    );
-  }
-}
+// class SignalComponent extends PureComponent {
+//   render() {
+//     let { x, y, orientation } = this.props;
+//     return (
+//       <rect
+//         width="8px"
+//         height="8px"
+//         transform={`translate(${scale(x) - 4},${scale(y) - 4})`}
+//         className={classnames(style.signal, style[orientation])}
+//       />
+//     );
+//   }
+// }
 
 export default connect(
   ({ timerOn, time, cars, signals }) => ({
@@ -82,7 +82,7 @@ export default connect(
       dispatch({ type: "TIMER_TOGGLE" });
     }
   })
-)(({ timerOn, timerToggle, signals, cars }) => {
+)(({ timerOn, timerToggle, cars }) => {
   return (
     <div className={style.main}>
       <div>
