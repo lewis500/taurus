@@ -7,15 +7,12 @@
 }
 
 .button {
-  padding: 10px;
+  padding: 5px;
   background: pink;
   color:white;
-  // height: 30px;
-  display: inline-block;
 }
 .time {
   font-size: 18px;
-  // display: inline-block;
 }
 .svg {
   width: 620px;
@@ -30,12 +27,14 @@
 }
 .signal{
   &.ns{
-    fill: red;
+    fill: lightcoral;
   }
   &.ew{
-    fill:lightgreen;
+    fill:lightblue;
   }
 }
 .car{
-  fill: lightblue;
+  fill: orange;
+  // height:4px;
+  // width:4px;
 }

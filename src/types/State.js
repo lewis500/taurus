@@ -10,6 +10,5 @@ export type State = {
   time: number,
   cars: Array<Car>,
   signals: Array<Signal>,
-  lanes: Array<Lane>,
   timerOn: boolean
 };

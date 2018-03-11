@@ -5,8 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "webpack-dev-server",
-    "build":
-      "webpack --color --progress --config webpack.config.production.js"
+    "build": "webpack --color --progress --config webpack.config.production.js"
   },
   "dependencies": {
     "classnames": "^2.2.5",
@@ -18,6 +17,7 @@
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.7",
     "redux": "^3.7.2",
+    "redux-logger": "^3.0.6",
     "reselect": "^3.0.1"
   },
   "devDependencies": {

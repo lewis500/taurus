@@ -13,13 +13,14 @@ const scale = scaleLinear()
   .range([0, width])
   .domain([0, N]);
 
-class LaneComponent extends PureComponent {
-  render() {
-    let { x0, x1, y0, y1 } = this.props;
-    let d = `M${scale(x0)},${scale(y0)} L${scale(x1)},${scale(y1)}`;
-    return <path className={style.lane} d={d} />;
-  }
-}
+const range = Array(2 * N).fill(0);
+const Lanes = range.map((_, i) => {
+  let d =
+    i < N
+      ? `M0,${scale(i)} L${width},${scale(i)}`
+      : `M${scale(i % N)},0 L${scale(i % N)},${width}`;
+  return <path d={d} className={style.lane} key={i} />;
+});
 
 class CarComponent extends PureComponent {
   render() {
@@ -28,10 +29,10 @@ class CarComponent extends PureComponent {
       <rect
         transform={`translate(${scale(x)},${scale(y)})`}
         className={style.car}
-        width="4"
-        height="4"
-        x="-2"
-        y="-2"
+        width="3"
+        height="3"
+        x="-1.5"
+        y="-1.5"
       />
     );
   }
@@ -52,11 +53,10 @@ class SignalComponent extends PureComponent {
 }
 
 export default connect(
-  ({ timerOn, time, cars, lanes, signals }) => ({
+  ({ timerOn, time, cars, signals }) => ({
     timerOn,
     time,
     cars,
-    lanes,
     signals
   }),
   (dispatch: Dispatch) => ({
@@ -64,25 +64,17 @@ export default connect(
       dispatch({ type: "TIMER_TOGGLE" });
     }
   })
-)(({ timerOn, time, timerToggle, lanes, signals, cars }) => {
+)(({ timerOn, time, timerToggle, signals, cars }) => {
   return (
     <div className={style.main}>
       <div className={style.button} onClick={timerToggle}>
         {timerOn ? "ON" : "OFF"}
       </div>
-      <div className={style.time}>{time}</div>
+      {/* <div className={style.time}>{time}</div> */}
       <svg className={style.svg}>
         <g transform="translate(10,10)">
-          {lanes.map(lane => (
-            <LaneComponent
-              x0={lane.x0}
-              x1={lane.x1}
-              y0={lane.y0}
-              y1={lane.y1}
-              key={lane.id}
-              direction={lane.direction}
-            />
-          ))}
+          {Lanes}
+          <g>{cars.map(d => <CarComponent x={d.x} y={d.y} key={d.id} />)}</g>
           {signals.map(({ col, row, orientation, id }) => (
             <SignalComponent
               x={col}
@@ -91,7 +83,6 @@ export default connect(
               key={id}
             />
           ))}
-          <g>{cars.map(d => <CarComponent x={d.x} y={d.y} key={d.id} />)}</g>
         </g>
       </svg>
     </div>

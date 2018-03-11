@@ -16,8 +16,6 @@ const time = CR(0, {
   }
 });
 
-const lanes = CR(model.lanes, {});
-
 import type { State } from "src/types/State";
 import type { Action } from "src/types/Action";
 import type { Reducer } from "src/types/Reducer";
@@ -25,7 +23,6 @@ import type { Reducer } from "src/types/Reducer";
 const defaultState: State = {
   time: 0,
   timerOn: false,
-  lanes: model.lanes,
   signals: model.signals,
   cars: model.cars
 };
@@ -34,12 +31,13 @@ const root: Reducer<State, Action> = (
   state = defaultState,
   action: Action
 ): State => {
-  if (action.type === "TICK") model.run(action.payload);
+  if (action.type === "TICK")
+    for (var i = 0; i < 4; i++) model.run(action.payload);
+
   // console.log(model.signals);
   return {
     time: time(state.time, action),
     timerOn: timerOn(state.timerOn, action),
-    lanes: model.lanes,
     signals: model.signals,
     cars: model.cars
   };

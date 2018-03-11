@@ -18,7 +18,7 @@ const store: Store<State, Action> = createStore(root);
         last = now;
         store.dispatch({
           type: "TICK",
-          payload: (now - temp) / 20
+          payload: (now - temp) / 100
         });
       });
     }
