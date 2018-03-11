@@ -84,11 +84,11 @@ export default connect(
       dispatch({ type: "TIMER_TOGGLE" });
     },
     setK(e) {
-      let k = e.target.value;
+      let k = +e.target.value;
       dispatch({ type: "SET_K", payload: k });
     }
   })
-)(({ timerOn, timerToggle, cars, k, setK, mfdState }) => {
+)(({ timerOn, timerToggle, cars, k, setK, mfdState: [kState, qState] }) => {
   return (
     <div className={style.main}>
       <div className={style.inputs}>
@@ -103,8 +103,8 @@ export default connect(
           value={k}
           onChange={setK}
         />
-        <span>k: {mfdState[0]}</span>
-        <span>q: {mfdState[1].toFixed(2)}</span>
+        <span>k: {kState.toFixed(2)}</span>
+        <span>q: {qState.toFixed(2)}</span>
       </div>
       {/* <div className={style.time}>{time}</div> */}
       <svg className={style.svg}>

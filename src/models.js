@@ -259,22 +259,23 @@ export class Graph {
             dx = vs(distanceRemaining);
             moveCar(car, car.pos + dx, lane);
           } else {
+            let turning = Math.random() < TURN;
             let nextLane = signal.lanesOut.find(
-              d => (d.orientation === lane.orientation) !== car.nextTimeTurning
+              d => (d.orientation === lane.orientation) !== turning
             );
             if (!nextLane) throw Error("error in finding lane");
             if (!nextLane.first) {
               lane.pop();
               dx = VF;
               moveCar(car, VF - distanceRemaining, nextLane);
-              car.nextTimeTurning = Math.random() <= TURN;
+              // car.nextTimeTurning =
               nextLane.unshift(car);
             } else {
               dx = vs(nextLane.first.car.pos + distanceRemaining);
               if (dx > distanceRemaining) {
                 lane.pop();
                 moveCar(car, dx - distanceRemaining, nextLane);
-                car.nextTimeTurning = Math.random() <= TURN;
+                // car.nextTimeTurning = Math.random() <= TURN;
                 nextLane.unshift(car);
               } else {
                 moveCar(car, car.pos + dx, lane);
