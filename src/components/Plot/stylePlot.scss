@@ -1,0 +1,13 @@
+@import "~material-colors/dist/colors";
+
+.dot {
+  fill: $md-light-blue-500;
+  stroke: white;
+}
+.bg {
+  fill: $md-grey-700;
+}
+.fd {
+  fill: none;
+  stroke: $md-pink-500;
+}

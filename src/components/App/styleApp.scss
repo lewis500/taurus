@@ -45,8 +45,15 @@ body {
 svg {
   display: inline-block;
 }
-.inputs{
-  span{
+.inputs {
+  span {
     padding: 5px;
+  }
+}
+
+.row {
+  display: flex;
+  & > div {
+    margin: 5px;
   }
 }

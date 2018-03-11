@@ -7,6 +7,7 @@ import type { Dispatch } from "src/types/Dispatch";
 import { scaleLinear } from "d3-scale";
 import { N, LANE_LENGTH, SJ } from "src/constants";
 import classnames from "classnames";
+import Plot from "src/components/Plot";
 
 const width = 450;
 const lineWidth = 5;
@@ -56,20 +57,6 @@ class CarComponent extends PureComponent {
   }
 }
 
-// class SignalComponent extends PureComponent {
-//   render() {
-//     let { x, y, orientation } = this.props;
-//     return (
-//       <rect
-//         width="8px"
-//         height="8px"
-//         transform={`translate(${scale(x) - 4},${scale(y) - 4})`}
-//         className={classnames(style.signal, style[orientation])}
-//       />
-//     );
-//   }
-// }
-
 export default connect(
   ({ timerOn, time, cars, k, mfdState }) => ({
     timerOn,
@@ -77,7 +64,6 @@ export default connect(
     cars,
     k,
     mfdState
-    // signals,
   }),
   (dispatch: Dispatch) => ({
     timerToggle() {
@@ -106,30 +92,24 @@ export default connect(
         <span>k: {kState.toFixed(2)}</span>
         <span>q: {qState.toFixed(2)}</span>
       </div>
-      {/* <div className={style.time}>{time}</div> */}
-      <svg className={style.svg}>
-        <g transform="translate(10,10)">
-          {Lanes}
-          <g>
-            {cars.map(d => (
-              <CarComponent
-                x={d.x}
-                y={d.y}
-                key={d.id}
-                orientation={d.orientation}
-              />
-            ))}
+      <div className={style.row}>
+        <svg className={style.svg}>
+          <g transform="translate(10,10)">
+            {Lanes}
+            <g>
+              {cars.map(d => (
+                <CarComponent
+                  x={d.x}
+                  y={d.y}
+                  key={d.id}
+                  orientation={d.orientation}
+                />
+              ))}
+            </g>
           </g>
-          {/* {signals.map(({ col, row, orientation, id }) => (
-            <SignalComponent
-              x={col}
-              y={row}
-              orientation={orientation}
-              key={id}
-            />
-          ))} */}
-        </g>
-      </svg>
+        </svg>
+        <Plot />
+      </div>
     </div>
   );
 });
