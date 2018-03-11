@@ -13,7 +13,7 @@ module.exports = {
   },
   output: {
     path: resolve(__dirname, "public"),
-    publicPath: "/public",
+    publicPath: "public",
     filename: "[name].js"
   },
   mode: "production",
