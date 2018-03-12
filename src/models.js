@@ -9,11 +9,11 @@ type Direction = "n" | "s" | "e" | "w";
 type Coord = [number, number];
 
 const vs = (() => {
-  const a = VF / W + 1,
+  const a = (VF / W + 1)*SJ,
     b = W / SJ;
   return (s: number) => {
-    if (s < SJ) return 0;
-    else if (s >= a) return VF;
+    if (s <= SJ) return 0;
+    else if (s > a) return VF;
     else return b * (s - SJ);
   };
 })();
@@ -42,7 +42,8 @@ export type Car = {
   lane: string,
   orientation: Orientation,
   color: string,
-  nextTimeTurning: boolean
+  nextTimeTurning: boolean,
+  alreadyMoved:boolean
 };
 
 type Node = {
@@ -52,8 +53,6 @@ type Node = {
 };
 
 const makeNode = (car): Node => ({ car, next: null, prev: null });
-
-// class Car
 
 const makeCar = (pos: number, lane: Lane): Car => {
   let x = lane.x0 + pos / LANE_LENGTH * (lane.x1 - lane.x0);
@@ -66,7 +65,8 @@ const makeCar = (pos: number, lane: Lane): Car => {
     y,
     lane: lane.id,
     orientation: lane.orientation,
-    nextTimeTurning: Math.random() <= TURN
+    nextTimeTurning: Math.random() <= TURN,
+    alreadyMoved: false
   };
 };
 
@@ -76,6 +76,7 @@ const moveCar = (car: Car, pos: number, lane: Lane): void => {
   car.pos = pos;
   car.lane = lane.id;
   car.orientation = lane.orientation;
+  car.alreadyMoved = true;
 };
 
 export class Lane {
@@ -201,6 +202,7 @@ export class Graph {
     this.k = k;
     let carsPerLane = k; //distance normalized to lane length
     this.cars = [];
+    // this.history= [].slice(0,5);
     let space = LANE_LENGTH / carsPerLane;
     for (let lane of this.lanes) {
       lane.first = lane.last = null;
@@ -241,6 +243,7 @@ export class Graph {
   run(dt: number) {
     let queue: Array<[Lane, Lane, Car]> = [];
     for (let signal of this.signals) signal.tick();
+    for(let car of this.cars) car.alreadyMoved = false;
     let q = 0;
     for (let lane of this.lanes) {
       let temp = lane.first;
@@ -249,15 +252,17 @@ export class Graph {
       while (temp) {
         let { car, next } = temp;
         let dx = 0;
-        if (next) {
+        // if(car.alreadyMoved) continue;
+        if (next && !car.alreadyMoved) {
           dx = vs(next.car.pos - car.pos);
           moveCar(car, car.pos + dx, lane);
         }
-        if (!next) {
+        if (!next && !car.alreadyMoved) {
           let distanceRemaining = LANE_LENGTH - car.pos;
           if (!signalOpen) {
             dx = vs(distanceRemaining);
             moveCar(car, car.pos + dx, lane);
+            // dx=0;
           } else {
             let turning = Math.random() < TURN;
             let nextLane = signal.lanesOut.find(
@@ -268,13 +273,14 @@ export class Graph {
               lane.pop();
               dx = VF;
               moveCar(car, VF - distanceRemaining, nextLane);
-              // car.nextTimeTurning =
+              dx = distanceRemaining;
               nextLane.unshift(car);
             } else {
               dx = vs(nextLane.first.car.pos + distanceRemaining);
               if (dx > distanceRemaining) {
                 lane.pop();
                 moveCar(car, dx - distanceRemaining, nextLane);
+                dx = distanceRemaining;//note this could be a bug
                 // car.nextTimeTurning = Math.random() <= TURN;
                 nextLane.unshift(car);
               } else {
@@ -287,7 +293,10 @@ export class Graph {
         temp = next;
       }
     }
-    this.history.push([this.k, q / N / LANE_LENGTH]);
+    this.history.push([
+      this.cars.length / this.lanes.length,
+      q / this.lanes.length
+    ]);
     if (this.history.length > HIST) this.history.shift();
   }
 }

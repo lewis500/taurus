@@ -70,6 +70,7 @@ export default connect(
       dispatch({ type: "TIMER_TOGGLE" });
     },
     setK(e) {
+      // console.log({...e});
       let k = +e.target.value;
       dispatch({ type: "SET_K", payload: k });
     }
@@ -87,7 +88,10 @@ export default connect(
           max={LANE_LENGTH / SJ - 1}
           step="1"
           value={k}
+          // key="input"
+          // onChange={()=>{}}
           onChange={setK}
+          // onMouseUp={setK}
         />
         <span>k: {kState.toFixed(2)}</span>
         <span>q: {qState.toFixed(2)}</span>
