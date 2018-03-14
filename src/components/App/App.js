@@ -8,6 +8,7 @@ import { scaleLinear } from "d3-scale";
 import { N, LANE_LENGTH, SJ } from "src/constants";
 import classnames from "classnames";
 import Plot from "src/components/Plot";
+import { debounce } from "src/utils";
 
 const width = 450;
 const lineWidth = 5;
@@ -88,10 +89,7 @@ export default connect(
           max={LANE_LENGTH / SJ - 1}
           step="1"
           value={k}
-          // key="input"
-          // onChange={()=>{}}
           onChange={setK}
-          // onMouseUp={setK}
         />
         <span>k: {kState.toFixed(2)}</span>
         <span>q: {qState.toFixed(2)}</span>

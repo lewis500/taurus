@@ -273,7 +273,7 @@ export class Graph {
               lane.pop();
               dx = VF;
               moveCar(car, VF - distanceRemaining, nextLane);
-              dx = distanceRemaining;
+              dx = distanceRemaining; //could be a bug
               nextLane.unshift(car);
             } else {
               dx = vs(nextLane.first.car.pos + distanceRemaining);

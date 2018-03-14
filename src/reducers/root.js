@@ -36,7 +36,7 @@ const root: Reducer<State, Action> = (
   action: Action
 ): State => {
   if (action.type === "TICK")
-    for (var i = 0; i < 3; i++) model.run(action.payload);
+    for (var i = 0; i < 1; i++) model.run(action.payload);
   if (action.type === "SET_K") model.makeCars(action.payload);
 
   return {

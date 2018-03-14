@@ -34,3 +34,16 @@ export const mod = (a: number, b: number): number => (a % b + b) % b;
 // .mod = function(n) {
 //   return ((this%n)+n)%n;
 // };
+
+export const debounce = (fn: Function, time: number): Function => {
+  let timeout;
+  // console.log(time);
+
+  return function() {
+    console.log('calling')
+    const functionCall = () => fn.apply(this, arguments);
+
+    clearTimeout(timeout);
+    timeout = setTimeout(functionCall, time);
+  };
+};
