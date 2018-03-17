@@ -86,7 +86,7 @@ export default connect(
         <input
           type="range"
           min="0"
-          max={LANE_LENGTH / SJ - 1}
+          max={(LANE_LENGTH / SJ - 1)*0.7}
           step="1"
           value={k}
           onChange={setK}

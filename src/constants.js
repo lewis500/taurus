@@ -1,6 +1,6 @@
 //@flow
 export const CYCLE = 30;
-export const N = 7;
+export const N = 6;
 export const LANE_LENGTH = 40;
 export const SJ = 1.5;
 export const VF = 2;

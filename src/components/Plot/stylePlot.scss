@@ -9,9 +9,14 @@
 }
 .fd {
   fill: none;
-  stroke: $md-pink-500;
+  stroke-width: 2px;
+  stroke: $md-blue-200;
 }
 .mfd {
   fill: none;
-  stroke: $md-green-500;
+  stroke-width: 2px;
+  stroke: $md-orange-500;
+}
+.label{
+  text-anchor: middle;
 }
